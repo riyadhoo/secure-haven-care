@@ -85,12 +85,25 @@ export default function Navbar() {
               </Link>
             ))}
             <div className="flex gap-3 pt-2">
-              <Button variant="outline" size="sm" className="flex-1" asChild>
-                <Link to="/login">Log in</Link>
-              </Button>
-              <Button size="sm" className="flex-1" asChild>
-                <Link to="/signup">Get Started</Link>
-              </Button>
+              {user ? (
+                <>
+                  <Button variant="outline" size="sm" className="flex-1" asChild>
+                    <Link to={dashboardPath}>Dashboard</Link>
+                  </Button>
+                  <Button size="sm" className="flex-1" onClick={async () => { await signOut(); navigate("/"); setOpen(false); }}>
+                    Log out
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button variant="outline" size="sm" className="flex-1" asChild>
+                    <Link to="/login">Log in</Link>
+                  </Button>
+                  <Button size="sm" className="flex-1" asChild>
+                    <Link to="/signup">Get Started</Link>
+                  </Button>
+                </>
+              )}
             </div>
           </div>
         </div>
