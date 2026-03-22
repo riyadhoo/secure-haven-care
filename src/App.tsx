@@ -3,6 +3,8 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { AuthProvider } from "@/contexts/AuthContext";
+import ProtectedRoute from "@/components/ProtectedRoute";
 import Index from "./pages/Index.tsx";
 import HowItWorks from "./pages/HowItWorks.tsx";
 import FindTherapist from "./pages/FindTherapist.tsx";
@@ -22,19 +24,49 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/how-it-works" element={<HowItWorks />} />
-          <Route path="/find-therapist" element={<FindTherapist />} />
-          <Route path="/doctor-apply" element={<DoctorApply />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Login />} />
-          <Route path="/patient" element={<PatientDashboard />} />
-          <Route path="/doctor" element={<DoctorDashboard />} />
-          <Route path="/admin" element={<AdminDashboard />} />
-          <Route path="/session-room" element={<SessionRoom />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <AuthProvider>
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/how-it-works" element={<HowItWorks />} />
+            <Route path="/find-therapist" element={<FindTherapist />} />
+            <Route path="/doctor-apply" element={<DoctorApply />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Login />} />
+            <Route
+              path="/patient"
+              element={
+                <ProtectedRoute allowedRoles={["patient"]}>
+                  <PatientDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/doctor"
+              element={
+                <ProtectedRoute allowedRoles={["doctor"]}>
+                  <DoctorDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin"
+              element={
+                <ProtectedRoute allowedRoles={["admin"]}>
+                  <AdminDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/session-room"
+              element={
+                <ProtectedRoute allowedRoles={["patient", "doctor"]}>
+                  <SessionRoom />
+                </ProtectedRoute>
+              }
+            />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>

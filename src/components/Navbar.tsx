@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X } from "lucide-react";
+import { Menu, X, LogOut } from "lucide-react";
 import logoIcon from "@/assets/logo-icon.png";
+import { useAuth } from "@/contexts/AuthContext";
 
 const navLinks = [
   { label: "How It Works", href: "/how-it-works" },
@@ -12,6 +13,10 @@ const navLinks = [
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
+  const { user, role, signOut } = useAuth();
+  const navigate = useNavigate();
+
+  const dashboardPath = role === "admin" ? "/admin" : role === "doctor" ? "/doctor" : "/patient";
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border/50">
@@ -36,12 +41,25 @@ export default function Navbar() {
         </nav>
 
         <div className="hidden md:flex items-center gap-3">
-          <Button variant="ghost" size="sm" asChild>
-            <Link to="/login">Log in</Link>
-          </Button>
-          <Button size="sm" asChild>
-            <Link to="/signup">Get Started</Link>
-          </Button>
+          {user ? (
+            <>
+              <Button variant="ghost" size="sm" asChild>
+                <Link to={dashboardPath}>Dashboard</Link>
+              </Button>
+              <Button variant="outline" size="sm" onClick={async () => { await signOut(); navigate("/"); }}>
+                <LogOut className="h-3.5 w-3.5 mr-1" /> Log out
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button variant="ghost" size="sm" asChild>
+                <Link to="/login">Log in</Link>
+              </Button>
+              <Button size="sm" asChild>
+                <Link to="/signup">Get Started</Link>
+              </Button>
+            </>
+          )}
         </div>
 
         <button
@@ -67,12 +85,25 @@ export default function Navbar() {
               </Link>
             ))}
             <div className="flex gap-3 pt-2">
-              <Button variant="outline" size="sm" className="flex-1" asChild>
-                <Link to="/login">Log in</Link>
-              </Button>
-              <Button size="sm" className="flex-1" asChild>
-                <Link to="/signup">Get Started</Link>
-              </Button>
+              {user ? (
+                <>
+                  <Button variant="outline" size="sm" className="flex-1" asChild>
+                    <Link to={dashboardPath}>Dashboard</Link>
+                  </Button>
+                  <Button size="sm" className="flex-1" onClick={async () => { await signOut(); navigate("/"); setOpen(false); }}>
+                    Log out
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button variant="outline" size="sm" className="flex-1" asChild>
+                    <Link to="/login">Log in</Link>
+                  </Button>
+                  <Button size="sm" className="flex-1" asChild>
+                    <Link to="/signup">Get Started</Link>
+                  </Button>
+                </>
+              )}
             </div>
           </div>
         </div>
