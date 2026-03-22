@@ -15,6 +15,7 @@ import PatientDashboard from "./pages/PatientDashboard.tsx";
 import DoctorDashboard from "./pages/DoctorDashboard.tsx";
 import AdminDashboard from "./pages/AdminDashboard.tsx";
 import SessionRoom from "./pages/SessionRoom.tsx";
+import SessionReport from "./pages/SessionReport.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
