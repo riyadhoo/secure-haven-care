@@ -50,6 +50,124 @@ export type Database = {
         }
         Relationships: []
       }
+      session_analysis: {
+        Row: {
+          analysis_type: string
+          created_at: string
+          data: Json
+          id: string
+          session_id: string
+        }
+        Insert: {
+          analysis_type: string
+          created_at?: string
+          data?: Json
+          id?: string
+          session_id: string
+        }
+        Update: {
+          analysis_type?: string
+          created_at?: string
+          data?: Json
+          id?: string
+          session_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "session_analysis_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      session_reports: {
+        Row: {
+          created_at: string
+          doctor_id: string
+          emotional_timeline: Json | null
+          flagged_moments: Json | null
+          id: string
+          is_finalized: boolean
+          patient_id: string
+          report_data: Json
+          report_type: string
+          session_id: string
+          topics: Json | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          doctor_id: string
+          emotional_timeline?: Json | null
+          flagged_moments?: Json | null
+          id?: string
+          is_finalized?: boolean
+          patient_id: string
+          report_data?: Json
+          report_type?: string
+          session_id: string
+          topics?: Json | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          doctor_id?: string
+          emotional_timeline?: Json | null
+          flagged_moments?: Json | null
+          id?: string
+          is_finalized?: boolean
+          patient_id?: string
+          report_data?: Json
+          report_type?: string
+          session_id?: string
+          topics?: Json | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "session_reports_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sessions: {
+        Row: {
+          created_at: string
+          doctor_id: string
+          ended_at: string | null
+          id: string
+          patient_id: string
+          session_type: string
+          started_at: string
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          doctor_id: string
+          ended_at?: string | null
+          id?: string
+          patient_id: string
+          session_type?: string
+          started_at?: string
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          doctor_id?: string
+          ended_at?: string | null
+          id?: string
+          patient_id?: string
+          session_type?: string
+          started_at?: string
+          status?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string
