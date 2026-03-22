@@ -32,6 +32,8 @@ const moodHistory = [
 ];
 
 export default function PatientDashboard() {
+  const { signOut } = useAuth();
+  const navigate = useNavigate();
   return (
     <div className="min-h-screen bg-background flex">
       {/* Sidebar */}
