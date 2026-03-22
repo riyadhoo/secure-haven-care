@@ -2,13 +2,54 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ScrollReveal from "@/components/ScrollReveal";
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
-import { useState } from "react";
-import { Mail, Lock, User, ArrowRight } from "lucide-react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Mail, Lock, User, ArrowRight, Loader2 } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/hooks/use-toast";
 
 export default function Login() {
-  const [isSignup, setIsSignup] = useState(false);
-  const [role, setRole] = useState<"patient" | "doctor">("patient");
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { signUp, signIn, user, role } = useAuth();
+  const { toast } = useToast();
+
+  const [isSignup, setIsSignup] = useState(location.pathname === "/signup");
+  const [selectedRole, setSelectedRole] = useState<"patient" | "doctor">("patient");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [displayName, setDisplayName] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (user && role) {
+      const dest = { patient: "/patient", doctor: "/doctor", admin: "/admin" };
+      navigate(dest[role] || "/", { replace: true });
+    }
+  }, [user, role, navigate]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSubmitting(true);
+
+    if (isSignup) {
+      const { error } = await signUp(email, password, selectedRole, displayName);
+      if (error) {
+        toast({ title: "Signup failed", description: error.message, variant: "destructive" });
+      } else {
+        toast({ title: "Account created", description: "Check your email to verify your account." });
+      }
+    } else {
+      const { error } = await signIn(email, password);
+      if (error) {
+        toast({ title: "Login failed", description: error.message, variant: "destructive" });
+      }
+      // Redirect handled by useEffect
+    }
+
+    setSubmitting(false);
+  };
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -31,9 +72,10 @@ export default function Login() {
                   {(["patient", "doctor"] as const).map((r) => (
                     <button
                       key={r}
-                      onClick={() => setRole(r)}
+                      type="button"
+                      onClick={() => setSelectedRole(r)}
                       className={`flex-1 py-2 text-sm font-medium rounded-lg transition-colors ${
-                        role === r ? "bg-card shadow-sm text-foreground" : "text-muted-foreground"
+                        selectedRole === r ? "bg-card shadow-sm text-foreground" : "text-muted-foreground"
                       }`}
                     >
                       {r === "patient" ? "Patient" : "Clinician"}
@@ -42,13 +84,16 @@ export default function Login() {
                 </div>
               )}
 
-              <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
+              <form className="space-y-4" onSubmit={handleSubmit}>
                 {isSignup && (
                   <div className="relative">
                     <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <input
                       className="w-full h-11 pl-10 pr-4 rounded-xl border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-                      placeholder={role === "patient" ? "Nickname (anonymous)" : "Full name"}
+                      placeholder={selectedRole === "patient" ? "Nickname (anonymous)" : "Full name"}
+                      value={displayName}
+                      onChange={(e) => setDisplayName(e.target.value)}
+                      required
                     />
                   </div>
                 )}
@@ -58,6 +103,9 @@ export default function Login() {
                     type="email"
                     className="w-full h-11 pl-10 pr-4 rounded-xl border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                     placeholder="Email address"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
                   />
                 </div>
                 <div className="relative">
@@ -66,11 +114,21 @@ export default function Login() {
                     type="password"
                     className="w-full h-11 pl-10 pr-4 rounded-xl border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                     placeholder="Password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    minLength={6}
                   />
                 </div>
-                <Button className="w-full" size="lg">
-                  {isSignup ? "Create Account" : "Sign In"}
-                  <ArrowRight className="h-4 w-4" />
+                <Button className="w-full" size="lg" disabled={submitting}>
+                  {submitting ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <>
+                      {isSignup ? "Create Account" : "Sign In"}
+                      <ArrowRight className="h-4 w-4" />
+                    </>
+                  )}
                 </Button>
               </form>
 
