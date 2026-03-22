@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X } from "lucide-react";
+import { Menu, X, LogOut } from "lucide-react";
 import logoIcon from "@/assets/logo-icon.png";
+import { useAuth } from "@/contexts/AuthContext";
 
 const navLinks = [
   { label: "How It Works", href: "/how-it-works" },
