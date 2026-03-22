@@ -41,12 +41,25 @@ export default function Navbar() {
         </nav>
 
         <div className="hidden md:flex items-center gap-3">
-          <Button variant="ghost" size="sm" asChild>
-            <Link to="/login">Log in</Link>
-          </Button>
-          <Button size="sm" asChild>
-            <Link to="/signup">Get Started</Link>
-          </Button>
+          {user ? (
+            <>
+              <Button variant="ghost" size="sm" asChild>
+                <Link to={dashboardPath}>Dashboard</Link>
+              </Button>
+              <Button variant="outline" size="sm" onClick={async () => { await signOut(); navigate("/"); }}>
+                <LogOut className="h-3.5 w-3.5 mr-1" /> Log out
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button variant="ghost" size="sm" asChild>
+                <Link to="/login">Log in</Link>
+              </Button>
+              <Button size="sm" asChild>
+                <Link to="/signup">Get Started</Link>
+              </Button>
+            </>
+          )}
         </div>
 
         <button
