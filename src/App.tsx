@@ -66,6 +66,14 @@ const App = () => (
                 </ProtectedRoute>
               }
             />
+            <Route
+              path="/session-report"
+              element={
+                <ProtectedRoute allowedRoles={["doctor"]}>
+                  <SessionReport />
+                </ProtectedRoute>
+              }
+            />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
