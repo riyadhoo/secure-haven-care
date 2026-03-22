@@ -59,7 +59,7 @@ export default function DoctorDashboard() {
             </button>
           ))}
         </nav>
-        <button className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-muted-foreground hover:bg-secondary">
+        <button onClick={async () => { await signOut(); navigate("/"); }} className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-muted-foreground hover:bg-secondary">
           <LogOut className="h-4.5 w-4.5" />
           Log out
         </button>
