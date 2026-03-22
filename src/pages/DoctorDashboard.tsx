@@ -1,6 +1,8 @@
+import { useNavigate } from "react-router-dom";
 import ScrollReveal from "@/components/ScrollReveal";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 import {
   Calendar,
   Users,
