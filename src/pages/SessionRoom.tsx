@@ -30,6 +30,9 @@ const DEMO_TRANSCRIPT = [
 ];
 
 export default function SessionRoom() {
+  const [searchParams] = useSearchParams();
+  const channelName = searchParams.get("channel") || `session-${Date.now()}`;
+  
   const [micOn, setMicOn] = useState(true);
   const [camOn, setCamOn] = useState(true);
   const [chatOpen, setChatOpen] = useState(false);
@@ -43,6 +46,17 @@ export default function SessionRoom() {
   const { role } = useAuth();
   const { toast } = useToast();
   const isDoctor = role === "doctor";
+
+  const {
+    localVideoTrack,
+    remoteUsers,
+    joined,
+    joining,
+    error: agoraError,
+    leave: leaveCall,
+    toggleMic,
+    toggleCam,
+  } = useAgora({ channelName });
 
   const {
     emotions,
