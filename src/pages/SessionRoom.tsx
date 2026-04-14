@@ -178,25 +178,23 @@ export default function SessionRoom() {
         {/* Video area */}
         <div className="flex-1 flex flex-col p-4">
           <div className="flex-1 grid grid-cols-2 gap-3">
-            {/* Doctor video */}
-            <div className="bg-white/5 rounded-2xl flex items-center justify-center relative overflow-hidden">
-              <div className="text-center">
-                <div className="w-20 h-20 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-3">
-                  <span className="text-2xl font-bold text-primary">AO</span>
-                </div>
-                <p className="text-sm text-primary-foreground/70">Dr. Amara Osei</p>
-              </div>
-            </div>
-            {/* Patient video */}
-            <div className="bg-white/5 rounded-2xl flex items-center justify-center relative overflow-hidden">
-              <div className="text-center">
-                <div className="w-20 h-20 rounded-full bg-accent/20 flex items-center justify-center mx-auto mb-3">
-                  <span className="text-2xl">🦊</span>
-                </div>
-                <p className="text-sm text-primary-foreground/70">AnonymousFox</p>
-                <p className="text-xs text-primary-foreground/40 mt-1">Audio Only</p>
-              </div>
-            </div>
+            {/* Local video */}
+            <LocalVideo
+              videoTrack={localVideoTrack}
+              label={isDoctor ? "Dr. Amara Osei" : "You"}
+              initials={isDoctor ? "AO" : "ME"}
+              camOn={camOn}
+            />
+            {/* Remote video */}
+            {remoteUsers.length > 0 ? (
+              <RemoteVideo
+                user={remoteUsers[0]}
+                label={isDoctor ? "AnonymousFox" : "Therapist"}
+                avatar={isDoctor ? "🦊" : "🩺"}
+              />
+            ) : (
+              <WaitingPanel joining={joining} error={agoraError} />
+            )}
           </div>
 
           {/* Burner notes (patient panel) */}
