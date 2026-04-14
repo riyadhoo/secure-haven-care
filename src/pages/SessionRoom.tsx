@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
   AlertTriangle,
@@ -9,9 +9,11 @@ import {
   Loader2,
 } from "lucide-react";
 import { useSessionAI } from "@/hooks/useSessionAI";
+import { useAgora } from "@/hooks/useAgora";
 import AIAssistantPanel from "@/components/session/AIAssistantPanel";
 import SessionControls from "@/components/session/SessionControls";
 import CrisisOverlay from "@/components/session/CrisisOverlay";
+import { LocalVideo, RemoteVideo, WaitingPanel } from "@/components/session/VideoPanel";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 
@@ -28,6 +30,9 @@ const DEMO_TRANSCRIPT = [
 ];
 
 export default function SessionRoom() {
+  const [searchParams] = useSearchParams();
+  const channelName = searchParams.get("channel") || `session-${Date.now()}`;
+  
   const [micOn, setMicOn] = useState(true);
   const [camOn, setCamOn] = useState(true);
   const [chatOpen, setChatOpen] = useState(false);
@@ -41,6 +46,17 @@ export default function SessionRoom() {
   const { role } = useAuth();
   const { toast } = useToast();
   const isDoctor = role === "doctor";
+
+  const {
+    localVideoTrack,
+    remoteUsers,
+    joined,
+    joining,
+    error: agoraError,
+    leave: leaveCall,
+    toggleMic,
+    toggleCam,
+  } = useAgora({ channelName });
 
   const {
     emotions,
@@ -93,6 +109,8 @@ export default function SessionRoom() {
   };
 
   const handleEndSession = useCallback(async () => {
+    await leaveCall();
+    
     if (!isDoctor) {
       toast({ title: "Session ended", description: "Thank you for your session." });
       navigate("/patient");
@@ -104,7 +122,6 @@ export default function SessionRoom() {
       const fullTranscript = DEMO_TRANSCRIPT.map((l) => `${l.speaker}: ${l.text}`).join("\n");
       const report = await generateReport(fullTranscript, "soap");
       toast({ title: "Report generated", description: "Your SOAP report is ready for review." });
-      // Navigate to report view with data
       navigate("/session-report", { state: { report, reportType: "soap", transcript: fullTranscript } });
     } catch (e) {
       console.error("Report generation failed:", e);
@@ -112,7 +129,7 @@ export default function SessionRoom() {
     } finally {
       setIsGeneratingReport(false);
     }
-  }, [isDoctor, generateReport, navigate, toast]);
+  }, [isDoctor, generateReport, navigate, toast, leaveCall]);
 
   return (
     <div className="h-screen bg-foreground flex flex-col overflow-hidden">
@@ -161,25 +178,23 @@ export default function SessionRoom() {
         {/* Video area */}
         <div className="flex-1 flex flex-col p-4">
           <div className="flex-1 grid grid-cols-2 gap-3">
-            {/* Doctor video */}
-            <div className="bg-white/5 rounded-2xl flex items-center justify-center relative overflow-hidden">
-              <div className="text-center">
-                <div className="w-20 h-20 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-3">
-                  <span className="text-2xl font-bold text-primary">AO</span>
-                </div>
-                <p className="text-sm text-primary-foreground/70">Dr. Amara Osei</p>
-              </div>
-            </div>
-            {/* Patient video */}
-            <div className="bg-white/5 rounded-2xl flex items-center justify-center relative overflow-hidden">
-              <div className="text-center">
-                <div className="w-20 h-20 rounded-full bg-accent/20 flex items-center justify-center mx-auto mb-3">
-                  <span className="text-2xl">🦊</span>
-                </div>
-                <p className="text-sm text-primary-foreground/70">AnonymousFox</p>
-                <p className="text-xs text-primary-foreground/40 mt-1">Audio Only</p>
-              </div>
-            </div>
+            {/* Local video */}
+            <LocalVideo
+              videoTrack={localVideoTrack}
+              label={isDoctor ? "Dr. Amara Osei" : "You"}
+              initials={isDoctor ? "AO" : "ME"}
+              camOn={camOn}
+            />
+            {/* Remote video */}
+            {remoteUsers.length > 0 ? (
+              <RemoteVideo
+                user={remoteUsers[0]}
+                label={isDoctor ? "AnonymousFox" : "Therapist"}
+                avatar={isDoctor ? "🦊" : "🩺"}
+              />
+            ) : (
+              <WaitingPanel joining={joining} error={agoraError} />
+            )}
           </div>
 
           {/* Burner notes (patient panel) */}
@@ -210,8 +225,16 @@ export default function SessionRoom() {
             camOn={camOn}
             chatOpen={chatOpen}
             aiOpen={aiOpen}
-            onToggleMic={() => setMicOn(!micOn)}
-            onToggleCam={() => setCamOn(!camOn)}
+            onToggleMic={() => {
+              const next = !micOn;
+              setMicOn(next);
+              toggleMic(next);
+            }}
+            onToggleCam={() => {
+              const next = !camOn;
+              setCamOn(next);
+              toggleCam(next);
+            }}
             onToggleChat={() => setChatOpen(!chatOpen)}
             onToggleAI={() => setAiOpen(!aiOpen)}
             onEndSession={handleEndSession}
