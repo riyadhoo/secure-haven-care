@@ -225,8 +225,16 @@ export default function SessionRoom() {
             camOn={camOn}
             chatOpen={chatOpen}
             aiOpen={aiOpen}
-            onToggleMic={() => setMicOn(!micOn)}
-            onToggleCam={() => setCamOn(!camOn)}
+            onToggleMic={() => {
+              const next = !micOn;
+              setMicOn(next);
+              toggleMic(next);
+            }}
+            onToggleCam={() => {
+              const next = !camOn;
+              setCamOn(next);
+              toggleCam(next);
+            }}
             onToggleChat={() => setChatOpen(!chatOpen)}
             onToggleAI={() => setAiOpen(!aiOpen)}
             onEndSession={handleEndSession}
