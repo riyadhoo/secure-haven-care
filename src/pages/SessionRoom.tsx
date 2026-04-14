@@ -109,6 +109,8 @@ export default function SessionRoom() {
   };
 
   const handleEndSession = useCallback(async () => {
+    await leaveCall();
+    
     if (!isDoctor) {
       toast({ title: "Session ended", description: "Thank you for your session." });
       navigate("/patient");
@@ -120,7 +122,6 @@ export default function SessionRoom() {
       const fullTranscript = DEMO_TRANSCRIPT.map((l) => `${l.speaker}: ${l.text}`).join("\n");
       const report = await generateReport(fullTranscript, "soap");
       toast({ title: "Report generated", description: "Your SOAP report is ready for review." });
-      // Navigate to report view with data
       navigate("/session-report", { state: { report, reportType: "soap", transcript: fullTranscript } });
     } catch (e) {
       console.error("Report generation failed:", e);
@@ -128,7 +129,7 @@ export default function SessionRoom() {
     } finally {
       setIsGeneratingReport(false);
     }
-  }, [isDoctor, generateReport, navigate, toast]);
+  }, [isDoctor, generateReport, navigate, toast, leaveCall]);
 
   return (
     <div className="h-screen bg-foreground flex flex-col overflow-hidden">
