@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
   AlertTriangle,
@@ -9,9 +9,11 @@ import {
   Loader2,
 } from "lucide-react";
 import { useSessionAI } from "@/hooks/useSessionAI";
+import { useAgora } from "@/hooks/useAgora";
 import AIAssistantPanel from "@/components/session/AIAssistantPanel";
 import SessionControls from "@/components/session/SessionControls";
 import CrisisOverlay from "@/components/session/CrisisOverlay";
+import { LocalVideo, RemoteVideo, WaitingPanel } from "@/components/session/VideoPanel";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 
