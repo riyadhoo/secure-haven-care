@@ -16,6 +16,7 @@ import CrisisOverlay from "@/components/session/CrisisOverlay";
 import { LocalVideo, RemoteVideo, WaitingPanel } from "@/components/session/VideoPanel";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { careCoordinator } from "@/lib/careCoordinator";
 
 // Simulated transcript lines for demo — in production, this comes from WebRTC + STT
 const DEMO_TRANSCRIPT = [
@@ -32,6 +33,8 @@ const DEMO_TRANSCRIPT = [
 export default function SessionRoom() {
   const [searchParams] = useSearchParams();
   const channelName = searchParams.get("channel") || `session-${Date.now()}`;
+  const sessionId = searchParams.get("sessionId");
+
   
   const [micOn, setMicOn] = useState(true);
   const [camOn, setCamOn] = useState(true);
@@ -110,7 +113,16 @@ export default function SessionRoom() {
 
   const handleEndSession = useCallback(async () => {
     await leaveCall();
-    
+
+    // Mark session completed in DB if we have a sessionId
+    if (sessionId) {
+      try {
+        await careCoordinator.updateSessionStatus(sessionId, "completed");
+      } catch (e) {
+        console.warn("Could not update session status:", e);
+      }
+    }
+
     if (!isDoctor) {
       toast({ title: "Session ended", description: "Thank you for your session." });
       navigate("/patient");
@@ -122,14 +134,17 @@ export default function SessionRoom() {
       const fullTranscript = DEMO_TRANSCRIPT.map((l) => `${l.speaker}: ${l.text}`).join("\n");
       const report = await generateReport(fullTranscript, "soap");
       toast({ title: "Report generated", description: "Your SOAP report is ready for review." });
-      navigate("/session-report", { state: { report, reportType: "soap", transcript: fullTranscript } });
+      navigate("/session-report", {
+        state: { report, reportType: "soap", transcript: fullTranscript, sessionId },
+      });
     } catch (e) {
       console.error("Report generation failed:", e);
       toast({ title: "Report failed", description: "Could not generate report. Please try again.", variant: "destructive" });
+      navigate("/doctor");
     } finally {
       setIsGeneratingReport(false);
     }
-  }, [isDoctor, generateReport, navigate, toast, leaveCall]);
+  }, [isDoctor, generateReport, navigate, toast, leaveCall, sessionId]);
 
   return (
     <div className="h-screen bg-foreground flex flex-col overflow-hidden">

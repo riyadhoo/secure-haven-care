@@ -38,8 +38,8 @@ export default function SessionReport() {
   const location = useLocation();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { report, reportType, transcript } = (location.state as any) || {};
-  const [editedReport, setEditedReport] = useState<Record<string, string>>(report || {});
+  const { report, reportType, transcript, sessionId } = (location.state as any) || {};
+  const [editedReport, setEditedReport] = useState<Record<string, any>>(report || {});
   const [activeFormat, setActiveFormat] = useState<"soap" | "dap">(reportType || "soap");
   const [saving, setSaving] = useState(false);
 
@@ -58,13 +58,31 @@ export default function SessionReport() {
 
   const sections = activeFormat === "soap" ? SOAP_SECTIONS : DAP_SECTIONS;
 
-  const handleSave = async () => {
+  const handleSave = async (finalize = false) => {
+    if (!sessionId) {
+      toast({
+        title: "No session linked",
+        description: "Cannot save — session ID missing.",
+        variant: "destructive",
+      });
+      return;
+    }
     setSaving(true);
     try {
-      // In production, save to session_reports table
-      toast({ title: "Report saved", description: "Clinical note has been saved successfully." });
-    } catch {
-      toast({ title: "Save failed", variant: "destructive" });
+      const { careCoordinator } = await import("@/lib/careCoordinator");
+      await careCoordinator.saveReport({
+        session_id: sessionId,
+        report_type: activeFormat,
+        report_data: editedReport,
+        is_finalized: finalize,
+      });
+      toast({
+        title: finalize ? "Report finalized" : "Report saved",
+        description: "Clinical note has been saved successfully.",
+      });
+      if (finalize) navigate("/doctor");
+    } catch (e: any) {
+      toast({ title: "Save failed", description: e.message, variant: "destructive" });
     } finally {
       setSaving(false);
     }
