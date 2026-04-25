@@ -123,9 +123,13 @@ export default function SessionReport() {
                 DAP
               </button>
             </div>
-            <Button onClick={handleSave} disabled={saving}>
+            <Button variant="outline" onClick={() => handleSave(false)} disabled={saving}>
               <Save className="h-4 w-4 mr-2" />
-              {saving ? "Saving…" : "Save Report"}
+              {saving ? "Saving…" : "Save Draft"}
+            </Button>
+            <Button onClick={() => handleSave(true)} disabled={saving}>
+              <Check className="h-4 w-4 mr-2" />
+              Finalize
             </Button>
           </div>
         </div>
