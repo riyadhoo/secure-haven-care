@@ -14,6 +14,53 @@ export type Database = {
   }
   public: {
     Tables: {
+      doctor_profiles: {
+        Row: {
+          available: boolean
+          bio: string | null
+          created_at: string
+          id: string
+          languages: string | null
+          rating: number | null
+          sessions_count: number
+          specialty: string
+          style: string | null
+          updated_at: string
+        }
+        Insert: {
+          available?: boolean
+          bio?: string | null
+          created_at?: string
+          id: string
+          languages?: string | null
+          rating?: number | null
+          sessions_count?: number
+          specialty?: string
+          style?: string | null
+          updated_at?: string
+        }
+        Update: {
+          available?: boolean
+          bio?: string | null
+          created_at?: string
+          id?: string
+          languages?: string | null
+          rating?: number | null
+          sessions_count?: number
+          specialty?: string
+          style?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "doctor_profiles_id_fkey"
+            columns: ["id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -137,31 +184,40 @@ export type Database = {
       }
       sessions: {
         Row: {
+          channel_name: string | null
+          concern: string | null
           created_at: string
           doctor_id: string
           ended_at: string | null
           id: string
           patient_id: string
+          scheduled_for: string | null
           session_type: string
           started_at: string
           status: string
         }
         Insert: {
+          channel_name?: string | null
+          concern?: string | null
           created_at?: string
           doctor_id: string
           ended_at?: string | null
           id?: string
           patient_id: string
+          scheduled_for?: string | null
           session_type?: string
           started_at?: string
           status?: string
         }
         Update: {
+          channel_name?: string | null
+          concern?: string | null
           created_at?: string
           doctor_id?: string
           ended_at?: string | null
           id?: string
           patient_id?: string
+          scheduled_for?: string | null
           session_type?: string
           started_at?: string
           status?: string
