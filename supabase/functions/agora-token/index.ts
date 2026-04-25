@@ -77,10 +77,12 @@ function bytesToBase64(bytes: Uint8Array): string {
 }
 
 async function hmacSign(key: Uint8Array, message: Uint8Array): Promise<Uint8Array> {
+  const keyBuf = key.buffer.slice(key.byteOffset, key.byteOffset + key.byteLength) as ArrayBuffer;
+  const msgBuf = message.buffer.slice(message.byteOffset, message.byteOffset + message.byteLength) as ArrayBuffer;
   const cryptoKey = await crypto.subtle.importKey(
-    "raw", key, { name: "HMAC", hash: "SHA-256" }, false, ["sign"]
+    "raw", keyBuf, { name: "HMAC", hash: "SHA-256" }, false, ["sign"]
   );
-  const signature = await crypto.subtle.sign("HMAC", cryptoKey, message);
+  const signature = await crypto.subtle.sign("HMAC", cryptoKey, msgBuf);
   return new Uint8Array(signature);
 }
 
